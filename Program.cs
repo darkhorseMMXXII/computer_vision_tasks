@@ -1,9 +1,11 @@
 ﻿
 
 using Microsoft.ML;
+using ObjectDetection;
 using ObjectDetection.YoloParser;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using ObjectDetection.DataStructures;
 
 static string GetAbsolutePath(string relativePath)
 {
@@ -15,13 +17,33 @@ static string GetAbsolutePath(string relativePath)
     return fullPath;
 }
 
-var assetsRelativePath = @"../../../assets";
+var assetsRelativePath = @"..\..\..\assets";
 string assetsPath = GetAbsolutePath(assetsRelativePath);
 var modelFilePath = Path.Combine(assetsPath, "Model", "TinyYolo2_model.onnx");
 var imagesFolder = Path.Combine(assetsPath, "images");
 var outputFolder = Path.Combine(assetsPath, "images", "output");
 
 MLContext mlContext = new MLContext();
+
+try
+{
+    IEnumerable<ImageNetData> images = ImageNetData.ReadFromFile(imagesFolder);
+    IDataView imageDataView = mlContext.Data.LoadFromEnumerable(images); var modelScorer = new OnnxModelScorer(imagesFolder, modelFilePath, mlContext);
+
+    // Use model to score data
+    IEnumerable<float[]> probabilities = modelScorer.Score(imageDataView);
+
+    YoloOutputParser parser = new YoloOutputParser();
+
+    var boundingBoxes =
+        probabilities
+        .Select(probability => parser.ParseOutputs(probability))
+        .Select(boxes => parser.FilterBoundingBoxes(boxes, 5, .5F));
+}
+catch (Exception ex)
+{
+    Console.WriteLine(ex.ToString());
+}
 
 void DrawBoundingBox(string inputImageLocation, string outputImageLocation, string imageName, IList<YoloBoundingBox> filteredBoundingBoxes)
 {

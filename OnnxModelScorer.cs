@@ -10,17 +10,17 @@ namespace ObjectDetection
 {
     internal class OnnxModelScorer
     {
-        private readonly string imagesFolder;
-        private readonly string modelLocation;
-        private readonly MLContext mlContext;
+        private readonly string _imagesFolder;
+        private readonly string _modelLocation;
+        private readonly MLContext _mlContext;
 
         private IList<YoloBoundingBox> _boundingBoxes = new List<YoloBoundingBox>();
 
         public OnnxModelScorer(string imagesFolder, string modelLocation, MLContext mlContext)
         {
-            this.imagesFolder = imagesFolder;
-            this.modelLocation = modelLocation;
-            this.mlContext = mlContext;
+            _imagesFolder = imagesFolder;
+            _modelLocation = modelLocation;
+            _mlContext = mlContext;
         }
         public struct ImageNetSettings
         {
@@ -45,11 +45,11 @@ namespace ObjectDetection
             Console.WriteLine("Read model");
             Console.WriteLine($"Model location: {modelLocation}");
             Console.WriteLine($"Default parameters: image size=({ImageNetSettings.imageWidth},{ImageNetSettings.imageHeight})");
-            var data = mlContext.Data.LoadFromEnumerable(new List<ImageNetData>());
-            var pipeline = mlContext.Transforms.LoadImages(outputColumnName: "image", imageFolder: "", inputColumnName: nameof(ImageNetData.ImagePath))
-                .Append(mlContext.Transforms.ResizeImages(outputColumnName: "image", imageWidth: ImageNetSettings.imageWidth, imageHeight: ImageNetSettings.imageHeight, inputColumnName: "image"))
-                .Append(mlContext.Transforms.ExtractPixels(outputColumnName: "image"))
-                .Append(mlContext.Transforms.ApplyOnnxModel(modelFile: modelLocation, outputColumnNames: new[] { TinyYoloModelSettings.ModelOutput }, inputColumnNames: new[] { TinyYoloModelSettings.ModelInput }));
+            var data = _mlContext.Data.LoadFromEnumerable(new List<ImageNetData>());
+            var pipeline = _mlContext.Transforms.LoadImages(outputColumnName: "image", imageFolder: "", inputColumnName: nameof(ImageNetData.ImagePath))
+                .Append(_mlContext.Transforms.ResizeImages(outputColumnName: "image", imageWidth: ImageNetSettings.imageWidth, imageHeight: ImageNetSettings.imageHeight, inputColumnName: "image"))
+                .Append(_mlContext.Transforms.ExtractPixels(outputColumnName: "image"))
+                .Append(_mlContext.Transforms.ApplyOnnxModel(modelFile: modelLocation, outputColumnNames: new[] { TinyYoloModelSettings.ModelOutput }, inputColumnNames: new[] { TinyYoloModelSettings.ModelInput }));
             var model = pipeline.Fit(data);
 
             return model;
@@ -57,7 +57,7 @@ namespace ObjectDetection
 
         private IEnumerable<float[]> PredictDataUsingModel(IDataView testData, ITransformer model)
         {
-            Console.WriteLine($"Images location: {imagesFolder}");
+            Console.WriteLine($"Images location: {_imagesFolder}");
             Console.WriteLine("");
             Console.WriteLine("=====Identify the objects in the images=====");
             Console.WriteLine("");
@@ -70,7 +70,7 @@ namespace ObjectDetection
 
         public IEnumerable<float[]> Score(IDataView data)
         {
-            var model = LoadModel(modelLocation);
+            var model = LoadModel(_modelLocation);
 
             return PredictDataUsingModel(data, model);
         }

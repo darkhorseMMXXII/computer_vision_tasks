@@ -10,6 +10,8 @@
   <ItemGroup>
     <PackageReference Include="microsoft.ml" Version="1.7.0" />
     <PackageReference Include="microsoft.ml.imageanalytics" Version="1.7.0" />
+    <PackageReference Include="microsoft.ml.onnxruntime.managed" Version="1.10.0" />
+    <PackageReference Include="microsoft.ml.onnxruntime.mklml" Version="1.6.0" />
     <PackageReference Include="microsoft.ml.onnxtransformer" Version="1.7.0" />
   </ItemGroup>
 
@@ -24,6 +26,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="assets\images\image4.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="assets\Model\TinyYolo2_model.onnx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
